@@ -28,6 +28,7 @@ export class Database {
     return data
   }
 
+  // insert data into the database
   insert(table, data) {
     if (Array.isArray(this.#database[table])) {
       this.#database[table].push(data)
@@ -40,6 +41,17 @@ export class Database {
     return data
   }
 
+  // update user by id in table database 
+  update(table, id, data) {
+    const rowIndex = this.#database[table].findIndex(row => row.id === id)
+
+    if (rowIndex > -1) {
+      this.#database[table][rowIndex] = {id, ...data}
+      this.#persist()
+    }
+  }
+
+  // delete user by id in table database 
   delete(table, id) {
     const rowIndex = this.#database[table].findIndex(row => row.id === id)
 
