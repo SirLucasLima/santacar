@@ -3,7 +3,7 @@ import { middleware } from '../middlewares/index.js'
 import { routes } from '../routes/index.js'
 
 const server = http.createServer(async (req, res) => {
-  const { method, url: path } = req
+  const { method, url } = req
 
   await middleware(req, res)
 
@@ -14,7 +14,7 @@ const server = http.createServer(async (req, res) => {
   if (route) {
     const routeParams = req.url.match(route.path)
 
-    req.params = { ...routeParams.groups}
+    req.params = { ...routeParams.groups }
 
     return route.handler(req, res)
   }
