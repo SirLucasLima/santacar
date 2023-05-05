@@ -3,20 +3,20 @@ import { middleware } from '../middlewares/index.js'
 import { routes } from '../routes/index.js'
 import { extractQueryParams } from '../utils/extract-query-params.js'
 
-// Create an HTTP server with an async request listener
+// Creates an HTTP server instance using the createServer() method of the http module. The server instance listens for incoming requests and executes the callback function passed as the second argument. The callback function takes two arguments, req and res, which represent the incoming request and the response that the server will send back to the client.
 const server = http.createServer(async (req, res) => {
-  // Extract the request method and URL from the incoming request object
+  // Extracts the HTTP method and URL from the incoming request using destructuring assignment.
   const { method, url } = req
 
-  // Call a middleware function with the request and response objects
+  // Middleware function that is responsible for performing some tasks on the incoming request before it is handled by the server. Since this line uses await, we assume that the middleware() function returns a Promise.
   await middleware(req, res)
 
-  // Find a matching route based on the request method and URL
+  // This code searches for a matching route using the find() method of the routes array. The routes array is assumed to contain objects that define the HTTP method, the URL path pattern, and a handler function for each route.
   const route = routes.find(route => {
     return route.method === method && route.path.test(url)
   })
 
-  // If a matching route was found, extract any route parameters and query parameters and call the handler function
+  // If a matching route is found, the code extracts the route parameters and query parameters from the URL and sets them on the req object. It then calls the handler function associated with the route, passing in the req and res objects as arguments.
   if (route) {
     const routeParams = req.url.match(route.path)
     const { query, ...params } = routeParams.groups
@@ -26,18 +26,8 @@ const server = http.createServer(async (req, res) => {
     return route.handler(req, res)
   }
 
-  // If no matching route was found, return a 404 response
+  // If no matching route is found, the code sends a 404 response to the client using the writeHead() and end() methods of the res object.
   return res.writeHead(404).end()
 })
 
-// Start the server listening on port 3333
 server.listen(3333)
-
-
-
-//////////////////////////////// EXPLAINTING THE SERVER
-
-// The server uses a middleware, which is an asynchronous function defined elsewhere in the code and receives two parameters: req and res. This middleware is executed whenever an HTTP request is made and is responsible for processing the request before passing it on to the rest of the code.
-// The server also defines a set of routes, which are defined elsewhere in the code in a variable called routes. Each route contains an HTTP method, a URL pattern (regular expression), and a handler function that will be executed when a request that matches that route is received by the server.
-// When a request is received by the server, it checks which route corresponds to that request by comparing the HTTP method and URL with each defined route. If a matching route is found, the server extracts the URL parameters and query parameters (if any) and stores them in params and query objects, respectively, which are added to the req object. Then, the handler function corresponding to that route is executed and receives req and res as arguments.
-// If no matching route is found, the server sends an HTTP response with the status code 404 (Not Found).
