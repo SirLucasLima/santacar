@@ -1,12 +1,10 @@
 import fs from 'node:fs/promises'
 
-//path to create db directory 
 const databasePath = new URL('../../db.json', import.meta.url)
 
 export class Database {
   #database = {}
 
-  //if db wasnt created this method will create an empty db directory 
   constructor() {
     fs.readFile(databasePath, 'utf8')
       .then(data => {
@@ -17,18 +15,24 @@ export class Database {
       })
   }
 
-  //first argument is the name and the path to the database and the second argument is the create to persist the database
   #persist() {
     fs.writeFile(databasePath, JSON.stringify(this.#database))
   }
 
-  select(table) {
-    const data = this.#database[table] ?? []
+  select(table, search) {
+    let data = this.#database[table] ?? []
+
+    if (search) {
+      data = data.filter(row => {
+        return Object.entries(search).some((key, value) => {
+          return row[key].toLowerCase().includes(value.toLowerCase())
+        })
+      })
+    }
 
     return data
   }
 
-  // insert data into the database
   insert(table, data) {
     if (Array.isArray(this.#database[table])) {
       this.#database[table].push(data)
@@ -41,7 +45,6 @@ export class Database {
     return data
   }
 
-  // update user by id in table database 
   update(table, id, data) {
     const rowIndex = this.#database[table].findIndex(row => row.id === id)
 
@@ -51,7 +54,6 @@ export class Database {
     }
   }
 
-  // delete user by id in table database 
   delete(table, id) {
     const rowIndex = this.#database[table].findIndex(row => row.id === id)
 
